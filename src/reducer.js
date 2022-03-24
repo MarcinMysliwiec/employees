@@ -1,36 +1,54 @@
 import {
   SET_LOADING,
-  SET_STORIES,
-  REMOVE_STORY,
+  SET_EMPLOYEES,
+  REMOVE_EMPLOYEE,
   HANDLE_PAGE,
-} from './actions'
+  HANDLE_DETAILED_PAGE,
+  SET_EMPLOYEE_DETAILS
+} from './actions';
 
 const reducer = (state, action) => {
   switch (action.type) {
     case SET_LOADING:
-      return { ...state, isLoading: true }
-    case SET_STORIES:
+      return { ...state, isLoading: true };
+    case SET_EMPLOYEES:
       return {
         ...state,
         isLoading: false,
         hits: action.payload.hits,
+      };
+    case REMOVE_EMPLOYEE:
+      if (isNaN(action.payload)) {
+        return { ...state };
       }
-    case REMOVE_STORY:
       return {
         ...state,
-        hits: state.hits.filter((story) => story.objectID !== action.payload),
-      }
+        hits: state.hits.filter((employee) => employee.id !== action.payload),
+      };
     case HANDLE_PAGE:
-      if (action.payload === 'inc') {
-        let nextId = state.idStarts + state.noofRecords
-        return { ...state, idStarts: nextId }
+      if (isNaN(action.payload)) {
+        return { ...state };
       }
-      if (action.payload === 'dec') {
-        let prevId = state.idStarts - state.noofRecords
-        return { ...state, idStarts: prevId }
+      const currentPage = action.payload;
+      const idStarts = ((currentPage - 1) * state.noofRecords) + 1;
+      return {
+        ...state,
+        currentPage,
+        idStarts
+      };
+    case HANDLE_DETAILED_PAGE:
+      if (isNaN(action.payload)) {
+        return { ...state };
       }
+      return { ...state, employeeId: action.payload };
+    case SET_EMPLOYEE_DETAILS:
+      return {
+        ...state,
+        isLoading: false,
+        employeeDetails: action.payload.hits[0]
+      };
     default:
-      throw new Error(`no mathching "${action.type}" action type`)
+      throw new Error(`no mathching "${action.type}" action type`);
   }
-}
-export default reducer
+};
+export default reducer;
